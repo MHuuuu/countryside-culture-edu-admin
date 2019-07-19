@@ -13,25 +13,19 @@
         </template>
       </el-table-column>
 
-      <el-table-column width="120px" align="center" label="Author">
-        <template slot-scope="scope">
-          <span>{{ scope.row.author }}</span>
-        </template>
-      </el-table-column>
-
-      <el-table-column class-name="status-col" label="Status" width="110">
-        <template slot-scope="{row}">
-          <el-tag :type="row.status | statusFilter">
-            {{ row.status }}
-          </el-tag>
-        </template>
-      </el-table-column>
-
       <el-table-column min-width="300px" label="Title">
         <template slot-scope="{row}">
           <router-link :to="'/article/edit/'+row.id" class="link-type">
             <span>{{ row.title }}</span>
           </router-link>
+        </template>
+      </el-table-column>
+
+      <el-table-column class-name="status-col" label="Status" width="110">
+        <template slot-scope="{row}">
+          <el-tag :type="row.examStatus | statusFilter">
+            {{ row.examStatus | statusInfoFilter }}
+          </el-tag>
         </template>
       </el-table-column>
 
@@ -60,9 +54,19 @@ export default {
   filters: {
     statusFilter(status) {
       const statusMap = {
-        published: 'success',
-        draft: 'info',
-        deleted: 'danger'
+        0: 'info',
+        1: 'danger',
+        2: 'success',
+        3: 'danger'
+      }
+      return statusMap[status]
+    },
+    statusInfoFilter(status) {
+      const statusMap = {
+        0: '草稿',
+        1: '待审核',
+        2: '已发布',
+        3: '退稿'
       }
       return statusMap[status]
     }

@@ -1,6 +1,7 @@
 import request from '@/utils/request'
 
 export function fetchList(query) {
+  console.log('z:fetchList(query),query=' + query)
   return request({
     url: '/article/list',
     method: 'get',

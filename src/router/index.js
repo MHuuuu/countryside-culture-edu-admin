@@ -56,40 +56,6 @@ export const constantRoutes = [
   },
 
   {
-    path: '/article',
-    component: Layout,
-    name: 'Article',
-    meta: { title: '文章', icon: 'example' },
-    children: [
-      {
-        path: 'list',
-        name: 'ArticleList',
-        component: () => import('@/views/article/list'),
-        meta: { title: '列表', icon: 'form' }
-      },
-      {
-        path: 'edit/:id(\\d+)',
-        name: 'ArticleEdit',
-        hidden: true,
-        component: () => import('@/views/article/edit'),
-        meta: { title: '编辑', icon: 'form' }
-      },
-      {
-        path: 'create',
-        name: 'ArticleCreate',
-        component: () => import('@/views/article/create'),
-        meta: { title: '上传', icon: 'form' }
-      },
-      {
-        path: 'audit',
-        name: 'ArticleAudit',
-        component: () => import('@/views/article/audit'),
-        meta: { title: '审核', icon: 'form' }
-      }
-    ]
-  },
-
-  {
     path: '/example',
     component: Layout,
     redirect: '/example/table',
@@ -130,6 +96,41 @@ export const constantRoutes = [
  * the routes that need to be dynamically loaded based on user roles
  */
 export const asyncRoutes = [
+  {
+    path: '/article',
+    component: Layout,
+    name: 'Article',
+    meta: { title: '文章', icon: 'example',
+      roles: ['admin', 'editor'] },
+    children: [
+      {
+        path: 'list',
+        name: 'ArticleList',
+        component: () => import('@/views/article/list'),
+        meta: { title: '列表', icon: 'form' }
+      },
+      {
+        path: 'edit/:id(\\d+)',
+        name: 'ArticleEdit',
+        hidden: true,
+        component: () => import('@/views/article/edit'),
+        meta: { title: '编辑', icon: 'form' }
+      },
+      {
+        path: 'create',
+        name: 'ArticleCreate',
+        component: () => import('@/views/article/create'),
+        meta: { title: '上传', icon: 'form' }
+      },
+      {
+        path: 'audit',
+        name: 'ArticleAudit',
+        component: () => import('@/views/article/audit'),
+        meta: { title: '审核', icon: 'form', roles: ['admin'] }
+      }
+    ]
+  },
+
   {
     path: '/permission',
     component: Layout,
