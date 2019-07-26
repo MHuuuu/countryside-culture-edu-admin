@@ -1,9 +1,18 @@
 import request from '@/utils/request'
 
 export function fetchList(query) {
-  console.log('z:fetchList(query),query=' + query)
+  // console.log('z:fetchList(query),query=' + query)
   return request({
     url: '/article/list',
+    method: 'get',
+    params: query
+  })
+}
+
+export function fetchAuditList(query) {
+  console.log('z:fetchAuditList(query),query=' + query)
+  return request({
+    url: '/article/auditList',
     method: 'get',
     params: query
   })
@@ -25,18 +34,31 @@ export function fetchPv(pv) {
   })
 }
 
-export function createArticle(data) {
+export function submitArticle(data) {
   return request({
-    url: '/article/create',
+    url: '/article/submit',
     method: 'post',
     data
   })
 }
 
-export function updateArticle(data) {
+export function draftArticle(data) {
   return request({
-    url: '/article/update',
+    url: '/article/draft',
     method: 'post',
     data
+  })
+}
+
+export function auditArticle(data) {
+  const { id, remark } = data
+  // console.log('z:auditArticle, id=' + id + 'remark =' + remark)
+  return request({
+    url: '/article/audit',
+    method: 'post',
+    params: {
+      id,
+      remark
+    }
   })
 }

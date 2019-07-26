@@ -16,6 +16,7 @@ import editorImage from './components/EditorImage'
 import plugins from './plugins'
 import toolbar from './toolbar'
 import load from './dynamicLoadScript'
+import { upload } from '@/api/public'
 
 // why use this cdn, detail see https://github.com/PanJiaChen/tinymce-all-in-one
 const tinymceCDN = 'https://cdn.jsdelivr.net/npm/tinymce-all-in-one@4.9.3/tinymce.min.js'
@@ -54,6 +55,10 @@ export default {
       type: [Number, String],
       required: false,
       default: 'auto'
+    },
+    accept: {
+      default: 'image/jpeg,image/jpg,image/png',
+      type: String
     }
   },
   data() {
@@ -116,7 +121,7 @@ export default {
       const _this = this
       window.tinymce.init({
         selector: `#${this.tinymceId}`,
-        language: this.languageTypeList['en'],
+        language: this.languageTypeList['zh'],
         height: this.height,
         body_class: 'panel-body ',
         object_resizing: false,
@@ -147,40 +152,57 @@ export default {
           editor.on('FullscreenStateChanged', (e) => {
             _this.fullscreen = e.state
           })
-        }
+        },
         // 整合七牛上传
         // images_dataimg_filter(img) {
         //   setTimeout(() => {
-        //     const $image = $(img);
-        //     $image.removeAttr('width');
-        //     $image.removeAttr('height');
+        //     const $image = $(img)
+        //     $image.removeAttr('width')
+        //     $image.removeAttr('height')
         //     if ($image[0].height && $image[0].width) {
-        //       $image.attr('data-wscntype', 'image');
-        //       $image.attr('data-wscnh', $image[0].height);
-        //       $image.attr('data-wscnw', $image[0].width);
-        //       $image.addClass('wscnph');
+        //       $image.attr('data-wscntype', 'image')
+        //       $image.attr('data-wscnh', $image[0].height)
+        //       $image.attr('data-wscnw', $image[0].width)
+        //       $image.addClass('wscnph')
         //     }
-        //   }, 0);
+        //   }, 0)
         //   return img
         // },
-        // images_upload_handler(blobInfo, success, failure, progress) {
-        //   progress(0);
-        //   const token = _this.$store.getters.token;
-        //   getToken(token).then(response => {
-        //     const url = response.data.qiniu_url;
-        //     const formData = new FormData();
-        //     formData.append('token', response.data.qiniu_token);
-        //     formData.append('key', response.data.qiniu_key);
-        //     formData.append('file', blobInfo.blob(), url);
-        //     upload(formData).then(() => {
-        //       success(url);
-        //       progress(100);
-        //     })
-        //   }).catch(err => {
-        //     failure('出现未知问题，刷新页面，或者联系程序员')
-        //     console.log(err);
-        //   });
-        // },
+        images_upload_handler(blobInfo, success, failure, progress) {
+          progress(0)
+          // const token = _this.$store.getters.token
+          // getToken(token).then(response => {
+          //   const url = response.data.qiniu_url
+          //   const formData = new FormData()
+          //   formData.append('token', response.data.qiniu_token)
+          //   formData.append('key', response.data.qiniu_key)
+          //   formData.append('file', blobInfo.blob(), url)
+          //   upload(formData).then(() => {
+          //     success(url)
+          //     progress(100)
+          //   })
+          // }).catch(err => {
+          //   failure('出现未知问题，刷新页面，或者联系程序员')
+          //   console.log(err)
+          // })
+
+          // if (self.accept.indexOf(blobInfo.blob().type) >= 0) {
+          //   uploadPic()
+          // } else {
+          //   failure('图片格式错误')
+          // }
+          // function uploadPic() {
+          const formData = new FormData()
+          formData.append('file', blobInfo.blob(), blobInfo.filename())
+          upload(formData).then((res) => {
+            success(res.data.url)
+            progress(100)
+          }).catch(err => {
+            failure('出现未知问题，刷新页面，或者联系程序员')
+            console.log(err)
+          })
+          // }
+        }
       })
     },
     destroyTinymce() {

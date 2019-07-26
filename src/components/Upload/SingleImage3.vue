@@ -15,7 +15,7 @@
       </div>
     </el-upload>
     <div class="image-preview image-app-preview">
-      <div v-show="imageUrl.length>1" class="image-preview-wrapper">
+      <div v-show="imageUrl && imageUrl.length>1" class="image-preview-wrapper">
         <img :src="imageUrl">
         <div class="image-preview-action">
           <i class="el-icon-delete" @click="rmImage" />
@@ -23,7 +23,7 @@
       </div>
     </div>
     <div class="image-preview">
-      <div v-show="imageUrl.length>1" class="image-preview-wrapper">
+      <div v-show="imageUrl && imageUrl.length>1" class="image-preview-wrapper">
         <img :src="imageUrl">
         <div class="image-preview-action">
           <i class="el-icon-delete" @click="rmImage" />
@@ -139,7 +139,7 @@ export default {
   }
   .image-app-preview {
     width: 320px;
-    height: 180px;
+    height: 200px;
     position: relative;
     border: 1px dashed #d9d9d9;
     float: left;

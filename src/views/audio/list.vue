@@ -7,10 +7,9 @@
         </template>
       </el-table-column>
 
-      <el-table-column width="180px" align="center" label="最后更新时间">
+      <el-table-column width="180px" align="center" label="Date">
         <template slot-scope="scope">
-          <span>{{ scope.row.publishTime }}</span>
-          <!-- <span>{{ scope.row.timestamp | parseTime('{y}-{m}-{d} {h}:{i}') }}</span> -->
+          <span>{{ scope.row.timestamp | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
         </template>
       </el-table-column>
 

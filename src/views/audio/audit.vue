@@ -14,9 +14,9 @@
       <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">
         Search
       </el-button>
-      <!-- <el-button class="filter-item" style="margin-left: 10px;" type="primary" icon="el-icon-edit" @click="handleCreate">
+      <el-button class="filter-item" style="margin-left: 10px;" type="primary" icon="el-icon-edit" @click="handleCreate">
         Add
-      </el-button> -->
+      </el-button>
       <el-button v-waves :loading="downloadLoading" class="filter-item" type="primary" icon="el-icon-download" @click="handleDownload">
         Export
       </el-button>
@@ -40,27 +40,25 @@
           <span>{{ scope.row.id }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="提交时间" width="200px" align="center">
+      <el-table-column label="Date" width="150px" align="center">
         <template slot-scope="scope">
-          <span>{{ scope.row.lastestTime }}</span>
+          <span>{{ scope.row.timestamp | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="标题" min-width="150px">
+      <el-table-column label="Title" min-width="150px">
         <template slot-scope="{row}">
-          <router-link :to="'/article/cheak/'+row.id">
-            <span class="link-type" @click="handleUpdate(row)">{{ row.title }}</span>
-          </router-link>
-          <el-tag>{{ row.kind | typeFilter }}</el-tag>
+          <span class="link-type" @click="handleUpdate(row)">{{ row.title }}</span>
+          <el-tag>{{ row.type | typeFilter }}</el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="提交者" width="110px" align="center">
+      <el-table-column label="Author" width="110px" align="center">
         <template slot-scope="scope">
-          <span>{{ scope.row.editor }}</span>
+          <span>{{ scope.row.author }}</span>
         </template>
       </el-table-column>
       <el-table-column v-if="showReviewer" label="Reviewer" width="110px" align="center">
         <template slot-scope="scope">
-          <span style="color:red;">{{ scope.row.auditor }}</span>
+          <span style="color:red;">{{ scope.row.reviewer }}</span>
         </template>
       </el-table-column>
 
@@ -71,31 +69,32 @@
         </template>
       </el-table-column> -->
 
-      <el-table-column label="点击量" align="center" width="95">
+      <el-table-column label="Readings" align="center" width="95">
         <template slot-scope="{row}">
-          <span v-if="row.clickNum" class="link-type">{{ row.clickNum }}</span>
+          <span v-if="row.pageviews" class="link-type" @click="handleFetchPv(row.pageviews)">{{ row.pageviews }}</span>
           <span v-else>0</span>
         </template>
       </el-table-column>
       <el-table-column label="Status" class-name="status-col" width="100">
         <template slot-scope="{row}">
-          <el-tag :type="row.examStatus | statusFilter">
-            {{ row.examStatus | statusInfoFilter }}
+          <el-tag :type="row.status | statusFilter">
+            {{ row.status }}
           </el-tag>
         </template>
       </el-table-column>
       <el-table-column label="Actions" align="center" width="230" class-name="small-padding fixed-width">
         <template slot-scope="{row}">
-          <router-link :to="'/article/cheak/'+row.id">
-            <el-button type="primary" size="mini">
-              查看
-            </el-button>
-          </router-link>
-          <el-button v-if="row.examStatus==1" size="mini" type="success" @click="handleModifyStatus(row,'published')">
-            通过
+          <el-button type="primary" size="mini" @click="handleUpdate(row)">
+            Edit
           </el-button>
-          <el-button v-if="row.examStatus==1" size="mini" type="danger" @click="handleBack(row)">
-            退稿
+          <el-button v-if="row.status!='published'" size="mini" type="success" @click="handleModifyStatus(row,'published')">
+            Publish
+          </el-button>
+          <el-button v-if="row.status!='draft'" size="mini" @click="handleModifyStatus(row,'draft')">
+            Draft
+          </el-button>
+          <el-button v-if="row.status!='deleted'" size="mini" type="danger" @click="handleModifyStatus(row,'deleted')">
+            Delete
           </el-button>
         </template>
       </el-table-column>
@@ -103,7 +102,7 @@
 
     <pagination v-show="total>0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="getList" />
 
-    <!-- <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
+    <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
       <el-form ref="dataForm" :rules="rules" :model="temp" label-position="left" label-width="70px" style="width: 400px; margin-left:50px;">
         <el-form-item label="Type" prop="type">
           <el-select v-model="temp.type" class="filter-item" placeholder="Please select">
@@ -116,6 +115,15 @@
         <el-form-item label="Title" prop="title">
           <el-input v-model="temp.title" />
         </el-form-item>
+        <el-form-item label="Status">
+          <el-select v-model="temp.status" class="filter-item" placeholder="Please select">
+            <el-option v-for="item in statusOptions" :key="item" :label="item" :value="item" />
+          </el-select>
+        </el-form-item>
+
+        <!-- <el-form-item label="Imp">
+          <el-rate v-model="temp.importance" :colors="['#99A9BF', '#F7BA2A', '#FF9900']" :max="3" style="margin-top:8px;" />
+        </el-form-item> -->
 
         <el-form-item label="Remark">
           <el-input v-model="temp.remark" :autosize="{ minRows: 2, maxRows: 4}" type="textarea" placeholder="Please input" />
@@ -129,9 +137,9 @@
           Confirm
         </el-button>
       </div>
-    </el-dialog> -->
+    </el-dialog>
 
-    <!-- <el-dialog :visible.sync="dialogPvVisible" title="Reading statistics">
+    <el-dialog :visible.sync="dialogPvVisible" title="Reading statistics">
       <el-table :data="pvData" border fit highlight-current-row style="width: 100%">
         <el-table-column prop="key" label="Channel" />
         <el-table-column prop="pv" label="Pv" />
@@ -139,38 +147,21 @@
       <span slot="footer" class="dialog-footer">
         <el-button type="primary" @click="dialogPvVisible = false">Confirm</el-button>
       </span>
-    </el-dialog> -->
-
-    <!-- 退稿提示框 -->
-    <el-dialog :visible.sync="dialogBackVisible" title="退稿">
-      <span>确定退回该稿件吗？</span>
-      <el-form ref="backForm" :rules="rules" :model="temp">
-        <el-form-item label="目标ID">
-          <el-input v-model="temp.id" prop="id" :disabled="true" />
-        </el-form-item>
-        <el-form-item label="退稿理由" prop="remark">
-          <el-input v-model="temp.remark" :autosize="{ minRows: 2, maxRows: 4}" type="textarea" />
-        </el-form-item>
-      </el-form>
-      <span slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="dialogBackVisible = false">退出</el-button>
-        <el-button type="primary" @click="backArticle">确定</el-button>
-      </span>
     </el-dialog>
   </div>
 </template>
 
 <script>
-import { fetchAuditList, auditArticle } from '@/api/article'
+import { fetchList, fetchPv, createArticle, updateArticle } from '@/api/article'
 import waves from '@/directive/waves' // waves directive
 import { parseTime } from '@/utils'
 import Pagination from '@/components/Pagination' // secondary package based on el-pagination
 
 const calendarTypeOptions = [
-  { key: '11', display_name: '网站公告' },
-  { key: '12', display_name: '新闻快讯' },
-  { key: '13', display_name: '专题访谈' },
-  { key: '14', display_name: '原创资讯' }
+  { key: 'CN', display_name: 'China' },
+  { key: 'US', display_name: 'USA' },
+  { key: 'JP', display_name: 'Japan' },
+  { key: 'EU', display_name: 'Eurozone' }
 ]
 
 // arr to obj, such as { CN : "China", US : "USA" }
@@ -186,23 +177,9 @@ export default {
   filters: {
     statusFilter(status) {
       const statusMap = {
-        // published: 'success',
-        // draft: 'info',
-        // deleted: 'danger',
-        0: 'info',
-        1: 'warning',
-        2: 'success',
-        3: 'warning'
-      }
-      return statusMap[status]
-    },
-    statusInfoFilter(status) {
-      const statusMap = {
-        0: '草稿',
-        1: '待审核',
-        2: '已发布',
-        3: '退稿',
-        4: '关闭'
+        published: 'success',
+        draft: 'info',
+        deleted: 'danger'
       }
       return statusMap[status]
     },
@@ -211,19 +188,6 @@ export default {
     }
   },
   data() {
-    const validateRequire = (rule, value, callback) => {
-      if (!value || value === '') {
-        console.log('z:validateRequire错误,' + value)
-        this.$message({
-          message: rule.field + '为必传项',
-          type: 'error'
-        })
-        callback(new Error(rule.field + '为必传项'))
-      } else {
-        console.log('z:validateRequire正常,' + value)
-        callback()
-      }
-    }
     return {
       tableKey: 0,
       list: null,
@@ -242,30 +206,27 @@ export default {
       sortOptions: [{ label: 'ID Ascending', key: '+id' }, { label: 'ID Descending', key: '-id' }],
       statusOptions: ['published', 'draft', 'deleted'],
       showReviewer: false,
-      /* 临时对象储存 */
       temp: {
-        id: 0,
-        remark: ''
-        // importance: 1,
-        // timestamp: new Date(),
-        // title: '',
-        // type: '',
-        // status: 'published'
+        id: undefined,
+        importance: 1,
+        remark: '',
+        timestamp: new Date(),
+        title: '',
+        type: '',
+        status: 'published'
       },
-      dialogBackVisible: false,
-      // dialogFormVisible: false,
-      // dialogStatus: '',
-      // textMap: {
-      //   update: 'Edit',
-      //   create: 'Create'
-      // },
-      // dialogPvVisible: false,
-      // pvData: [],
+      dialogFormVisible: false,
+      dialogStatus: '',
+      textMap: {
+        update: 'Edit',
+        create: 'Create'
+      },
+      dialogPvVisible: false,
+      pvData: [],
       rules: {
-        remark: [{ validator: validateRequire, trigger: 'blur' }]
-        // type: [{ required: true, message: 'type is required', trigger: 'change' }],
-        // timestamp: [{ type: 'date', required: true, message: 'timestamp is required', trigger: 'change' }],
-        // title: [{ required: true, message: 'title is required', trigger: 'blur' }]
+        type: [{ required: true, message: 'type is required', trigger: 'change' }],
+        timestamp: [{ type: 'date', required: true, message: 'timestamp is required', trigger: 'change' }],
+        title: [{ required: true, message: 'title is required', trigger: 'blur' }]
       },
       downloadLoading: false
     }
@@ -276,7 +237,7 @@ export default {
   methods: {
     getList() {
       this.listLoading = true
-      fetchAuditList(this.listQuery).then(response => {
+      fetchList(this.listQuery).then(response => {
         this.list = response.data.items
         this.total = response.data.total
 
@@ -295,7 +256,7 @@ export default {
         message: '操作Success',
         type: 'success'
       })
-      row.examStatus = status
+      row.status = status
     },
     sortChange(data) {
       const { prop, order } = data
@@ -311,7 +272,7 @@ export default {
       }
       this.handleFilter()
     },
-    /* resetTemp() {
+    resetTemp() {
       this.temp = {
         id: undefined,
         importance: 1,
@@ -321,47 +282,23 @@ export default {
         status: 'published',
         type: ''
       }
-    }, */
-    /* handleCreate() {
+    },
+    handleCreate() {
       this.resetTemp()
       this.dialogStatus = 'create'
-      // this.dialogFormVisible = true
+      this.dialogFormVisible = true
       this.$nextTick(() => {
         this.$refs['dataForm'].clearValidate()
       })
-    }, */
-    /* createData() {
+    },
+    createData() {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
           this.temp.id = parseInt(Math.random() * 100) + 1024 // mock a id
           this.temp.author = 'vue-element-admin'
           createArticle(this.temp).then(() => {
             this.list.unshift(this.temp)
-            // this.dialogFormVisible = false
-            this.$notify({
-              title: 'Success',
-              message: 'Created Successfully',
-              type: 'success',
-              duration: 2000
-            })
-          })
-        }
-      })
-    }, */
-    handleBack(row) {
-      this.dialogBackVisible = true
-      this.temp.id = row.id
-      if (row.remark && row.remark.length > 0) this.temp.remark = row.remark
-      else this.temp.remark = ''
-      // this.$nextTick(() => {
-      //   // this.$refs['backForm'].clearValidate()
-      // })
-    },
-    backArticle() {
-      this.$refs['backForm'].validate((valid) => {
-        if (valid) {
-          auditArticle(this.temp).then(() => {
-            this.dialogBackVisible = false
+            this.dialogFormVisible = false
             this.$notify({
               title: 'Success',
               message: 'Created Successfully',
@@ -372,7 +309,7 @@ export default {
         }
       })
     },
-    /* handleUpdate(row) {
+    handleUpdate(row) {
       this.temp = Object.assign({}, row) // copy obj
       this.temp.timestamp = new Date(this.temp.timestamp)
       this.dialogStatus = 'update'
@@ -404,8 +341,8 @@ export default {
           })
         }
       })
-    }, */
-    /* handleDelete(row) {
+    },
+    handleDelete(row) {
       this.$notify({
         title: 'Success',
         message: 'Delete Successfully',
@@ -414,7 +351,13 @@ export default {
       })
       const index = this.list.indexOf(row)
       this.list.splice(index, 1)
-    }, */
+    },
+    handleFetchPv(pv) {
+      fetchPv(pv).then(response => {
+        this.pvData = response.data.pvData
+        this.dialogPvVisible = true
+      })
+    },
     handleDownload() {
       this.downloadLoading = true
       import('@/vendor/Export2Excel').then(excel => {
