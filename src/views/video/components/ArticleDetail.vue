@@ -68,21 +68,6 @@
                       clearable
                       maxlength="20"
                     />
-                    <!-- <el-select
-                      v-model="postForm.author"
-                      :remote-method="getRemoteUserList"
-                      filterable
-                      default-first-option
-                      remote
-                      placeholder="Search user"
-                    >
-                      <el-option
-                        v-for="(item,index) in userListOptions"
-                        :key="item+index"
-                        :label="item"
-                        :value="item"
-                      />
-                    </el-select>-->
                   </el-form-item>
                 </el-col>
 
@@ -97,18 +82,6 @@
                   </el-form-item>
                 </el-col>
 
-                <!-- <el-col :span="6">
-                  <el-form-item label-width="90px" label="Importance:" class="postInfo-container-item">
-                    <el-rate
-                      v-model="postForm.importance"
-                      :max="3"
-                      :colors="['#99A9BF', '#F7BA2A', '#FF9900']"
-                      :low-threshold="1"
-                      :high-threshold="3"
-                      style="display:inline-block"
-                    />
-                  </el-form-item>
-                </el-col>-->
               </el-row>
             </div>
           </el-col>
@@ -128,7 +101,14 @@
         </el-form-item>
 
         <el-form-item prop="content" style="margin-bottom: 30px;">
-          <Tinymce ref="editor" v-model="postForm.content" :height="400" />
+          <uploader
+            ref="uploader"
+            :options="options"
+            :file-status-text="statusText"
+            class="uploader-example"
+            @file-complete="fileComplete"
+            @complete="complete"
+          />
         </el-form-item>
 
         <el-form-item prop="image_uri" label="(*)文章封面:" style="margin-bottom: 30px;">
@@ -152,16 +132,13 @@
 </template>
 
 <script>
-import Tinymce from '@/components/Tinymce'
 import Upload from '@/components/Upload/SingleImage3'
 import MDinput from '@/components/MDinput'
 import Sticky from '@/components/Sticky' // 粘性header组件
 import { validURL } from '@/utils/validate'
-import { fetchArticle, submitArticle, draftArticle } from '@/api/article'
-// import { searchUser } from '@/api/remote-search'
-// import Warning from './Warning'
+import { fetchVideo, submitVideo, draftVideo } from '@/api/video'
 import { PlatformDropdown, SourceUrlDropdown } from './Dropdown'
-// import { mapGetters } from 'vuex'
+import { uploadVideo } from '@/api/public'
 
 const defaultForm = {
   status: 'draft',
@@ -185,7 +162,6 @@ const defaultForm = {
 export default {
   name: 'ArticleDetail',
   components: {
-    Tinymce,
     MDinput,
     Upload,
     Sticky,
@@ -230,6 +206,23 @@ export default {
       }
     }
     return {
+      options: {
+        target: '/public/chunk',
+        testChunks: true,
+        simultaneousUploads: 1,
+        chunkSize: 10 * 1024 * 1024
+      },
+      attrs: {
+        accept: 'image/*'
+      },
+      statusText: {
+        success: '成功了',
+        error: '出错了',
+        uploading: '上传中',
+        paused: '暂停中',
+        waiting: '等待中'
+      },
+
       dialogVisible: false,
       postForm: Object.assign({}, defaultForm),
       loading: false,
@@ -301,9 +294,14 @@ export default {
     // https://github.com/PanJiaChen/vue-element-admin/issues/1221
     this.tempRoute = Object.assign({}, this.$route)
   },
+  mounted() {
+    this.$nextTick(() => {
+      window.uploader = this.$refs.uploader.uploader
+    })
+  },
   methods: {
     fetchData(id) {
-      fetchArticle(id)
+      fetchVideo(id)
         .then(response => {
           this.postForm = response.data
 
@@ -311,14 +309,6 @@ export default {
           if (this.postForm.examStatus === 3 && !this.isCheak) {
             this.dialogVisible = true
           }
-          // just for test
-          // this.postForm.title += `Article Id:${this.postForm.id}`
-
-          // set tagsview title
-          // 暂时不用
-          // this.setTagsViewTitle()
-
-          // set page title
           this.setPageTitle()
         })
         .catch(err => {
@@ -351,7 +341,7 @@ export default {
       this.$refs.postForm.validate(valid => {
         if (valid) {
           this.loading = true
-          submitArticle(this.postForm)
+          submitVideo(this.postForm)
             .then(response => {
               this.postForm.examStatus = 1
               // console.log(response.data)
@@ -391,7 +381,7 @@ export default {
         return
       }
 
-      draftArticle(this.postForm).then(response => {
+      draftVideo(this.postForm).then(response => {
         this.$message({
           message: '保存成功',
           type: 'success',
@@ -403,13 +393,28 @@ export default {
         console.log(err)
         return
       })
+    },
+
+    // 上传完成
+    complete() {
+      console.log('complete', arguments)
+    },
+    // 一个根文件（文件夹）成功上传完成。
+    fileComplete() {
+      console.log('file complete', arguments)
+      const file = arguments[0].file
+      const data = {
+        filename: file.name,
+        identifier: arguments[0].uniqueIdentifier,
+        totalSize: file.size,
+        type: file.type
+      }
+      uploadVideo(data).then(function(response) {
+        console.log(response)
+      }).catch(function(error) {
+        console.log(error)
+      })
     }
-    // getRemoteUserList(query) {
-    //   searchUser(query).then(response => {
-    //     if (!response.data.items) return
-    //     this.userListOptions = response.data.items.map(v => v.name)
-    //   })
-    // }
   }
 }
 </script>
@@ -451,4 +456,21 @@ export default {
     border-bottom: 1px solid #bfcbd9;
   }
 }
+
+  .uploader-example {
+    width: 880px;
+    padding: 15px;
+    margin: 40px auto 0;
+    font-size: 12px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, .4);
+  }
+  .uploader-example .uploader-btn {
+    margin-right: 4px;
+  }
+  .uploader-example .uploader-list {
+    max-height: 440px;
+    overflow: auto;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
 </style>

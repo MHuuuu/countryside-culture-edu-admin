@@ -28,6 +28,9 @@ import * as filters from './filters' // global filters
 // import { mockXHR } from '../mock'
 // if (process.env.NODE_ENV === 'production') { mockXHR() }
 
+import uploader from 'vue-simple-uploader'
+Vue.use(uploader)
+
 // register global utility filters
 Object.keys(filters).forEach(key => {
   Vue.filter(key, filters[key])

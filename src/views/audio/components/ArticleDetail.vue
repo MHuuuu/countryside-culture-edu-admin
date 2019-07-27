@@ -5,13 +5,30 @@
         <!-- <CommentDropdown v-model="postForm.comment_disabled" /> -->
         <PlatformDropdown v-model="postForm.kind" />
         <SourceUrlDropdown v-model="postForm.source" />
+        <!-- 文章锁定 -->
         <el-button
+          v-if="postForm.examStatus == 1 && !isCheak"
+          type="info"
+        >文章锁定-等待审核中</el-button>
+
+        <el-button
+          v-if="isCheak"
+          type="info"
+        >文章锁定-查看中</el-button>
+
+        <el-button
+          v-if="!isCheak && (postForm.examStatus == 0 || postForm.examStatus == 3)"
           v-loading="loading"
           style="margin-left: 10px;"
           type="success"
           @click="submitForm"
-        >发布</el-button>
-        <el-button v-loading="loading" type="warning" @click="draftForm">保存草稿</el-button>
+        >发布提交</el-button>
+        <el-button
+          v-loading="loading"
+          :disabled="postForm.examStatus !== 0"
+          type="warning"
+          @click="draftForm"
+        >保存草稿</el-button>
       </sticky>
 
       <div class="createPost-main-container">
@@ -20,13 +37,13 @@
 
           <el-col :span="24">
             <el-form-item style="margin-bottom: 40px;" prop="title">
-              <MDinput v-model="postForm.title" :maxlength="100" name="name" required>Title</MDinput>
+              <MDinput v-model="postForm.title" :maxlength="100" name="name" required>(*)Title</MDinput>
             </el-form-item>
 
             <div class="postInfo-container">
               <el-row>
                 <el-col :span="8">
-                  <el-form-item label-width="120px" label="是否原创文章:">
+                  <el-form-item label-width="120px" label="(*)是否原创文章:">
                     <el-switch v-model="getIsOriginal" />
                   </el-form-item>
                 </el-col>
@@ -45,7 +62,7 @@
 
               <el-row>
                 <el-col :span="8">
-                  <el-form-item label-width="60px" label="编辑:" class="postInfo-container-item" prop="editor">
+                  <el-form-item label-width="60px" label="(*)编辑:" class="postInfo-container-item" prop="editor">
                     <el-input
                       v-model="postForm.editor"
                       clearable
@@ -70,7 +87,7 @@
                 </el-col>
 
                 <el-col :span="10">
-                  <el-form-item label-width="120px" label="推送时间:" class="postInfo-container-item" prop="publish_time">
+                  <el-form-item label-width="120px" label="(*)推送时间:" class="postInfo-container-item" prop="publish_time">
                     <el-date-picker
                       v-model="displayTime"
                       type="datetime"
@@ -114,11 +131,23 @@
           <Tinymce ref="editor" v-model="postForm.content" :height="400" />
         </el-form-item>
 
-        <el-form-item prop="image_uri" label="文章封面:" style="margin-bottom: 30px;">
+        <el-form-item prop="image_uri" label="(*)文章封面:" style="margin-bottom: 30px;">
           <Upload v-model="postForm.picture" />
         </el-form-item>
       </div>
     </el-form>
+    <el-dialog
+      title="退稿提示"
+      :visible.sync="dialogVisible"
+      width="30%"
+    >
+      <span>您的这条稿件遭到了退稿<br></span>
+      <span><b>退稿理由:</b><br>{{ postForm.remark }}</span>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="dialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -146,7 +175,8 @@ const defaultForm = {
   id: undefined,
   kind: 0,
   // comment_disabled: false,
-  importance: 0,
+  // importance: 0,
+  examStatus: 0,
   isOriginal: 0,
   author: '',
   editor: ''
@@ -164,6 +194,10 @@ export default {
   },
   props: {
     isEdit: {
+      type: Boolean,
+      default: false
+    },
+    isCheak: {
       type: Boolean,
       default: false
     }
@@ -196,6 +230,7 @@ export default {
       }
     }
     return {
+      dialogVisible: false,
       postForm: Object.assign({}, defaultForm),
       loading: false,
       userListOptions: [],
@@ -244,7 +279,7 @@ export default {
       },
       set(val) {
         this.postForm.publishTime = new Date(val)
-        console.log('z:this.postForm.publishTime=' + this.postForm.publishTime)
+        // console.log('z:this.postForm.publishTime=' + this.postForm.publishTime)
       }
     }
   },
@@ -271,8 +306,13 @@ export default {
       fetchArticle(id)
         .then(response => {
           this.postForm = response.data
+
+          // 提示框
+          if (this.postForm.examStatus === 3 && !this.isCheak) {
+            this.dialogVisible = true
+          }
           // just for test
-          // this.postForm.title += `   Article Id:${this.postForm.id}`
+          // this.postForm.title += `Article Id:${this.postForm.id}`
 
           // set tagsview title
           // 暂时不用
@@ -313,7 +353,8 @@ export default {
           this.loading = true
           submitArticle(this.postForm)
             .then(response => {
-              console.log(response.data)
+              this.postForm.examStatus = 1
+              // console.log(response.data)
               this.$notify({
                 title: '成功',
                 message: '发布文章成功,等待审核中',

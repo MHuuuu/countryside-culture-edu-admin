@@ -151,6 +151,12 @@ export const asyncRoutes = [
         meta: { title: '列表', icon: 'form' }
       },
       {
+        path: 'test',
+        name: 'Test',
+        component: () => import('@/views/video/test'),
+        meta: { title: '测试', icon: 'form' }
+      },
+      {
         path: 'edit/:id(\\d+)',
         name: 'VideoEdit',
         hidden: true,
