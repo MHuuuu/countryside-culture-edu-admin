@@ -212,9 +212,9 @@ export default {
         simultaneousUploads: 1,
         chunkSize: 10 * 1024 * 1024
       },
-      attrs: {
-        accept: 'image/*'
-      },
+      // attrs: {
+      //   accept: 'image/*'
+      // },
       statusText: {
         success: '成功了',
         error: '出错了',
@@ -410,7 +410,7 @@ export default {
         type: file.type
       }
       uploadVideo(data).then(function(response) {
-        console.log(response)
+        console.log(response.data)
       }).catch(function(error) {
         console.log(error)
       })

@@ -151,12 +151,6 @@ export const asyncRoutes = [
         meta: { title: '列表', icon: 'form' }
       },
       {
-        path: 'test',
-        name: 'Test',
-        component: () => import('@/views/video/test'),
-        meta: { title: '测试', icon: 'form' }
-      },
-      {
         path: 'edit/:id(\\d+)',
         name: 'VideoEdit',
         hidden: true,
@@ -173,40 +167,6 @@ export const asyncRoutes = [
         path: 'audit',
         name: 'VideoAudit',
         component: () => import('@/views/video/audit'),
-        meta: { title: '审核', icon: 'form', roles: ['admin'] }
-      }
-    ]
-  },
-  {
-    path: '/audio',
-    component: Layout,
-    name: 'Audio',
-    meta: { title: '音频', icon: 'example',
-      roles: ['admin', 'editor'] },
-    children: [
-      {
-        path: 'list',
-        name: 'AudioList',
-        component: () => import('@/views/audio/list'),
-        meta: { title: '列表', icon: 'form' }
-      },
-      {
-        path: 'edit/:id(\\d+)',
-        name: 'AudioEdit',
-        hidden: true,
-        component: () => import('@/views/audio/edit'),
-        meta: { title: '编辑', icon: 'form' }
-      },
-      {
-        path: 'create',
-        name: 'AudioCreate',
-        component: () => import('@/views/audio/create'),
-        meta: { title: '上传', icon: 'form' }
-      },
-      {
-        path: 'audit',
-        name: 'AudioAudit',
-        component: () => import('@/views/audio/audit'),
         meta: { title: '审核', icon: 'form', roles: ['admin'] }
       }
     ]

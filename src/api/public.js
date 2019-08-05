@@ -12,13 +12,24 @@ export function upload(formData) {
   })
 }
 
-export function uploadVideo(data) {
+export function uploadVideo(fileInfo) {
   return request({
     url: '/public/mergeFile',
     method: 'post',
-    headers: {
-      'Content-Type': 'multipart/form-data'
-    },
-    data
+    // headers: {
+    //   'Content-Type': 'multipart/form-data'
+    // },
+    data: fileInfo
+  })
+}
+
+export function uploadChunk(fileInfo) {
+  return request({
+    url: '/public/chunk',
+    method: 'post',
+    // headers: {
+    //   'Content-Type': 'multipart/form-data'
+    // },
+    data: fileInfo
   })
 }
