@@ -97,6 +97,18 @@ export const constantRoutes = [
  */
 export const asyncRoutes = [
   {
+    path: '/activity',
+    component: Layout,
+    children: [
+      {
+        path: 'index',
+        name: 'Activity',
+        component: () => import('@/views/activity/index'),
+        meta: { title: '活动', icon: 'form' }
+      }
+    ]
+  },
+  {
     path: '/article',
     component: Layout,
     name: 'Article',
@@ -168,6 +180,27 @@ export const asyncRoutes = [
         name: 'VideoAudit',
         component: () => import('@/views/video/audit'),
         meta: { title: '审核', icon: 'form', roles: ['admin'] }
+      }
+    ]
+  }, {
+    path: '/management',
+    component: Layout,
+    redirect: 'noredirect',
+    alwaysShow: true, // will always show the root menu
+    meta: {
+      title: '账号管理',
+      icon: 'lock',
+      roles: ['admin', 'editor'] // you can set roles in root nav
+    },
+    children: [
+      {
+        path: 'user',
+        component: () => import('@/views/management/index'),
+        name: 'UserManagement',
+        meta: {
+          title: '用户状态',
+          roles: ['admin']
+        }
       }
     ]
   },

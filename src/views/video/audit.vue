@@ -161,7 +161,7 @@
 </template>
 
 <script>
-import { fetchAuditList, auditArticle } from '@/api/article'
+import { fetchAuditList, auditVideo } from '@/api/video'
 import waves from '@/directive/waves' // waves directive
 import { parseTime } from '@/utils'
 import Pagination from '@/components/Pagination' // secondary package based on el-pagination
@@ -360,7 +360,7 @@ export default {
     backArticle() {
       this.$refs['backForm'].validate((valid) => {
         if (valid) {
-          auditArticle(this.temp).then(() => {
+          auditVideo(this.temp).then(() => {
             this.dialogBackVisible = false
             this.$notify({
               title: 'Success',
