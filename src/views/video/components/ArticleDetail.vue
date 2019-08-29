@@ -4,10 +4,10 @@
       <sticky :z-index="10" :class-name="'sub-navbar '+postForm.status">
         <!-- <CommentDropdown v-model="postForm.comment_disabled" /> -->
         <PlatformDropdown v-model="postForm.kind" />
-        <SourceUrlDropdown v-model="postForm.source" />
+        <!-- <SourceUrlDropdown v-model="postForm.source" /> -->
         <!-- 文章锁定 -->
         <el-button
-          v-if="postForm.examStatus == 1 && !isCheak"
+          v-if="postForm.status == 1 && !isCheak"
           type="info"
         >文章锁定-等待审核中</el-button>
 
@@ -17,18 +17,20 @@
         >文章锁定-查看中</el-button>
 
         <el-button
-          v-if="!isCheak && (postForm.examStatus == 0 || postForm.examStatus == 3)"
+          v-if="!isCheak && (postForm.status == 0 || postForm.status == 3)"
           v-loading="loading"
           style="margin-left: 10px;"
           type="success"
           @click="submitForm"
         >发布提交</el-button>
-        <el-button
+        <!-- <el-button
+          v-if="!isCheak "
           v-loading="loading"
-          :disabled="postForm.examStatus !== 0"
+          :disabled="postForm.status !== 0"
           type="warning"
           @click="draftForm"
-        >保存草稿</el-button>
+        >保存草稿</el-button> -->
+
       </sticky>
 
       <div class="createPost-main-container">
@@ -42,37 +44,19 @@
 
             <div class="postInfo-container">
               <el-row>
-                <el-col :span="8">
-                  <el-form-item label-width="120px" label="(*)是否原创文章:">
-                    <el-switch v-model="getIsOriginal" />
-                  </el-form-item>
-                </el-col>
-                <el-col :span="10">
-                  <el-form-item label="原文作者:" label-width="120px" class="postInfo-container-item" prop="author">
+                <el-col>
+                  <el-form-item label="作者:" label-width="120px" class="postInfo-container-item" prop="author">
                     <el-input
                       v-model="postForm.author"
-                      :disabled="getIsOriginal"
                       placeholder="请输入内容"
                       clearable
                       maxlength="20"
                     />
                   </el-form-item>
                 </el-col>
-              </el-row>
 
-              <el-row>
-                <el-col :span="8">
-                  <el-form-item label-width="60px" label="(*)编辑:" class="postInfo-container-item" prop="editor">
-                    <el-input
-                      v-model="postForm.editor"
-                      clearable
-                      maxlength="20"
-                    />
-                  </el-form-item>
-                </el-col>
-
-                <el-col :span="10">
-                  <el-form-item label-width="120px" label="(*)推送时间:" class="postInfo-container-item" prop="publish_time">
+                <el-col>
+                  <el-form-item label-width="120px" label="推送时间:" class="postInfo-container-item" prop="publish_time">
                     <el-date-picker
                       v-model="displayTime"
                       type="datetime"
@@ -100,7 +84,14 @@
           <span v-show="contentShortLength" class="word-counter">{{ contentShortLength }}words</span>
         </el-form-item>
 
-        <el-form-item prop="content" style="margin-bottom: 30px;">
+        <el-form-item style="margin-bottom: 30px;">
+          <video-player
+            v-if="isEdit"
+            ref="videoPlayer"
+            class="video-player vjs-custom-skin"
+            :playsinline="true"
+            :options="playerOptions"
+          />
           <uploader
             ref="uploader"
             :options="options"
@@ -135,28 +126,27 @@
 import Upload from '@/components/Upload/SingleImage3'
 import MDinput from '@/components/MDinput'
 import Sticky from '@/components/Sticky' // 粘性header组件
-import { validURL } from '@/utils/validate'
-import { fetchVideo, submitVideo, draftVideo } from '@/api/video'
-import { PlatformDropdown, SourceUrlDropdown } from './Dropdown'
+import { fetchVideo, submitVideo } from '@/api/video'
+import { PlatformDropdown } from './Dropdown'
 import { uploadVideo } from '@/api/public'
 
+import { videoPlayer } from 'vue-video-player'
+import 'video.js/dist/video-js.css'
+
 const defaultForm = {
-  status: 'draft',
+  theStatus: 'draft',
   title: '', // 文章题目
-  content: '', // 文章内容
+  // content: '', // 文章内容
   remark: '', // 文章摘要
-  source: '', // 文章外链
+  // source: '', // 文章外链
   // image_uri: '', // 文章图片
   picture: '', // 文章图片
   publishTime: undefined, // 前台展示时间
   id: undefined,
   kind: 0,
-  // comment_disabled: false,
-  // importance: 0,
-  examStatus: 0,
-  isOriginal: 0,
+  status: 0,
   author: '',
-  editor: ''
+  url: ''
 }
 
 export default {
@@ -166,7 +156,8 @@ export default {
     Upload,
     Sticky,
     PlatformDropdown,
-    SourceUrlDropdown
+    // SourceUrlDropdown,
+    videoPlayer
   },
   props: {
     isEdit: {
@@ -190,22 +181,28 @@ export default {
         callback()
       }
     }
-    const validateSourceUri = (rule, value, callback) => {
-      if (value) {
-        if (validURL(value)) {
-          callback()
-        } else {
-          this.$message({
-            message: '外链url填写不正确',
-            type: 'error'
-          })
-          callback(new Error('外链url填写不正确'))
-        }
-      } else {
-        callback()
-      }
-    }
     return {
+      playerOptions: {
+        playbackRates: [0.7, 1.0, 1.5, 2.0], // 播放速度
+        autoplay: false, // 如果true,浏览器准备好时开始回放。
+        muted: false, // 默认情况下将会消除任何音频。
+        loop: false, // 导致视频一结束就重新开始。
+        preload: 'auto', // 建议浏览器在<video>加载元素后是否应该开始下载视频数据。auto浏览器选择最佳行为,立即开始加载视频（如果浏览器支持）
+        language: 'zh-CN',
+        aspectRatio: '16:9', // 将播放器置于流畅模式，并在计算播放器的动态大小时使用该值。值应该代表一个比例 - 用冒号分隔的两个数字（例如"16:9"或"4:3"）
+        fluid: true, // 当true时，Video.js player将拥有流体大小。换句话说，它将按比例缩放以适应其容器。
+        sources: undefined,
+        // poster: '../../static/images/test.jpg', // 你的封面地址
+        // width: document.documentElement.clientWidth,
+        notSupportedMessage: '此视频暂无法播放，请稍后再试', // 允许覆盖Video.js无法播放媒体源时显示的默认信息。
+        controlBar: {
+          timeDivider: true,
+          durationDisplay: true,
+          remainingTimeDisplay: false,
+          fullscreenToggle: true // 全屏按钮
+        }
+      },
+
       options: {
         target: '/public/chunk',
         testChunks: true,
@@ -230,11 +227,10 @@ export default {
       rules: {
         image_uri: [{ validator: validateRequire }],
         title: [{ validator: validateRequire }],
-        content: [{ validator: validateRequire }],
+        // content: [{ validator: validateRequire }],
         publish_time: [{ validator: validateRequire }],
-        editor: [{ validator: validateRequire }],
-        author: [{ validator: validateRequire }],
-        source: [{ validator: validateSourceUri, trigger: 'blur' }]
+        author: [{ validator: validateRequire }]
+        // source: [{ validator: validateSourceUri, trigger: 'blur' }]
       },
       tempRoute: {}
     }
@@ -243,24 +239,8 @@ export default {
     /* ...mapGetters([
       'nickname'
     ]), */
-    editorName() {
-      return this.postForm.editor
-    },
-    getIsOriginal: {
-      get() {
-        return this.postForm.isOriginal === 1
-      },
-      set(val) {
-        if (val) {
-          this.postForm.author = this.postForm.editor
-        } else {
-          this.postForm.author = ''
-        }
-        this.postForm.isOriginal = val ? 1 : 0
-      }
-    },
     contentShortLength() {
-      return this.postForm.remark.length
+      return this.postForm.remark ? this.postForm.remark.length : 0
     },
     displayTime: {
       // set and get is useful when the data
@@ -274,11 +254,6 @@ export default {
         this.postForm.publishTime = new Date(val)
         // console.log('z:this.postForm.publishTime=' + this.postForm.publishTime)
       }
-    }
-  },
-  watch: {
-    editorName(val) {
-      if (this.getIsOriginal) this.postForm.author = val
     }
   },
   created() {
@@ -304,9 +279,14 @@ export default {
       fetchVideo(id)
         .then(response => {
           this.postForm = response.data
+          this.playerOptions.sources = [{
+            // src: response.data.url, // 路径
+            src: 'http://120.79.217.195:8080/video/追鱼书馆教学花旦示范3_高清.mp4',
+            type: 'video/mp4' // 类型
+          }]
 
           // 提示框
-          if (this.postForm.examStatus === 3 && !this.isCheak) {
+          if (this.postForm.status === 3 && !this.isCheak) {
             this.dialogVisible = true
           }
           this.setPageTitle()
@@ -328,7 +308,7 @@ export default {
     },
     submitForm() {
       if (
-        this.postForm.content.length === 0 ||
+        // this.postForm.content.length === 0 ||
         this.postForm.title.length === 0
       ) {
         this.$message({
@@ -343,7 +323,7 @@ export default {
           this.loading = true
           submitVideo(this.postForm)
             .then(response => {
-              this.postForm.examStatus = 1
+              this.postForm.status = 1
               // console.log(response.data)
               this.$notify({
                 title: '成功',
@@ -351,7 +331,7 @@ export default {
                 type: 'success',
                 duration: 2000
               })
-              this.postForm.status = 'published'
+              this.postForm.theStatus = 'published'
             }).catch(err => {
               console.log(err)
               this.$notify({
@@ -369,31 +349,6 @@ export default {
         }
       })
     },
-    draftForm() {
-      if (
-        this.postForm.content.length === 0 ||
-        this.postForm.title.length === 0
-      ) {
-        this.$message({
-          message: '请填写必要的标题和内容',
-          type: 'warning'
-        })
-        return
-      }
-
-      draftVideo(this.postForm).then(response => {
-        this.$message({
-          message: '保存成功',
-          type: 'success',
-          showClose: true,
-          duration: 1000
-        })
-        this.postForm.status = 'draft'
-      }).catch(err => {
-        console.log(err)
-        return
-      })
-    },
 
     // 上传完成
     complete() {
@@ -409,8 +364,10 @@ export default {
         totalSize: file.size,
         type: file.type
       }
-      uploadVideo(data).then(function(response) {
-        console.log(response.data)
+
+      uploadVideo(data).then(async(response) => {
+        await console.log('上传成功')
+        this.postForm.url = response.data
       }).catch(function(error) {
         console.log(error)
       })

@@ -16,7 +16,7 @@
 
       <el-table-column min-width="300px" label="Title">
         <template slot-scope="{row}">
-          <router-link :to="'/article/edit/'+row.id" class="link-type">
+          <router-link :to="'/video/edit/'+row.id" class="link-type">
             <span>{{ row.title }}</span>
           </router-link>
         </template>
@@ -24,17 +24,17 @@
 
       <el-table-column class-name="status-col" label="Status" width="110">
         <template slot-scope="{row}">
-          <el-tag :type="row.examStatus | statusFilter">
-            {{ row.examStatus | statusInfoFilter }}
+          <el-tag :type="row.status | statusFilter">
+            {{ row.status | statusInfoFilter }}
           </el-tag>
         </template>
       </el-table-column>
 
       <el-table-column align="center" label="Actions" width="120">
         <template slot-scope="scope">
-          <router-link :to="'/article/edit/'+scope.row.id">
+          <router-link :to="'/video/edit/'+scope.row.id">
             <el-button type="primary" size="small" icon="el-icon-edit">
-              Edit
+              编辑
             </el-button>
           </router-link>
         </template>

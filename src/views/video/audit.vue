@@ -47,7 +47,7 @@
       </el-table-column>
       <el-table-column label="标题" min-width="150px">
         <template slot-scope="{row}">
-          <router-link :to="'/article/cheak/'+row.id">
+          <router-link :to="'/video/cheak/'+row.id">
             <span class="link-type" @click="handleUpdate(row)">{{ row.title }}</span>
           </router-link>
           <el-tag>{{ row.kind | typeFilter }}</el-tag>
@@ -55,7 +55,7 @@
       </el-table-column>
       <el-table-column label="提交者" width="110px" align="center">
         <template slot-scope="scope">
-          <span>{{ scope.row.editor }}</span>
+          <span>{{ scope.row.author }}</span>
         </template>
       </el-table-column>
       <el-table-column v-if="showReviewer" label="Reviewer" width="110px" align="center">
@@ -71,30 +71,30 @@
         </template>
       </el-table-column> -->
 
-      <el-table-column label="点击量" align="center" width="95">
+      <!-- <el-table-column label="点击量" align="center" width="95">
         <template slot-scope="{row}">
           <span v-if="row.clickNum" class="link-type">{{ row.clickNum }}</span>
           <span v-else>0</span>
         </template>
-      </el-table-column>
+      </el-table-column> -->
       <el-table-column label="Status" class-name="status-col" width="100">
         <template slot-scope="{row}">
-          <el-tag :type="row.examStatus | statusFilter">
-            {{ row.examStatus | statusInfoFilter }}
+          <el-tag :type="row.status | statusFilter">
+            {{ row.status | statusInfoFilter }}
           </el-tag>
         </template>
       </el-table-column>
       <el-table-column label="Actions" align="center" width="230" class-name="small-padding fixed-width">
         <template slot-scope="{row}">
-          <router-link :to="'/article/cheak/'+row.id">
+          <router-link :to="'/video/cheak/'+row.id">
             <el-button type="primary" size="mini">
               查看
             </el-button>
           </router-link>
-          <el-button v-if="row.examStatus==1" size="mini" type="success" @click="handleModifyStatus(row,'published')">
+          <el-button v-if="row.status==1" size="mini" type="success" @click="handleModifyStatus(row,2)">
             通过
           </el-button>
-          <el-button v-if="row.examStatus==1" size="mini" type="danger" @click="handleBack(row)">
+          <el-button v-if="row.status==1" size="mini" type="danger" @click="handleBack(row)">
             退稿
           </el-button>
         </template>
@@ -103,44 +103,6 @@
 
     <pagination v-show="total>0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="getList" />
 
-    <!-- <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
-      <el-form ref="dataForm" :rules="rules" :model="temp" label-position="left" label-width="70px" style="width: 400px; margin-left:50px;">
-        <el-form-item label="Type" prop="type">
-          <el-select v-model="temp.type" class="filter-item" placeholder="Please select">
-            <el-option v-for="item in calendarTypeOptions" :key="item.key" :label="item.display_name" :value="item.key" />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="Date" prop="timestamp">
-          <el-date-picker v-model="temp.timestamp" type="datetime" placeholder="Please pick a date" />
-        </el-form-item>
-        <el-form-item label="Title" prop="title">
-          <el-input v-model="temp.title" />
-        </el-form-item>
-
-        <el-form-item label="Remark">
-          <el-input v-model="temp.remark" :autosize="{ minRows: 2, maxRows: 4}" type="textarea" placeholder="Please input" />
-        </el-form-item>
-      </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogFormVisible = false">
-          Cancel
-        </el-button>
-        <el-button type="primary" @click="dialogStatus==='create'?createData():updateData()">
-          Confirm
-        </el-button>
-      </div>
-    </el-dialog> -->
-
-    <!-- <el-dialog :visible.sync="dialogPvVisible" title="Reading statistics">
-      <el-table :data="pvData" border fit highlight-current-row style="width: 100%">
-        <el-table-column prop="key" label="Channel" />
-        <el-table-column prop="pv" label="Pv" />
-      </el-table>
-      <span slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="dialogPvVisible = false">Confirm</el-button>
-      </span>
-    </el-dialog> -->
-
     <!-- 退稿提示框 -->
     <el-dialog :visible.sync="dialogBackVisible" title="退稿">
       <span>确定退回该稿件吗？</span>
@@ -148,8 +110,8 @@
         <el-form-item label="目标ID">
           <el-input v-model="temp.id" prop="id" :disabled="true" />
         </el-form-item>
-        <el-form-item label="退稿理由" prop="remark">
-          <el-input v-model="temp.remark" :autosize="{ minRows: 2, maxRows: 4}" type="textarea" />
+        <el-form-item label="退稿理由" prop="statusReason">
+          <el-input v-model="temp.statusReason" :autosize="{ minRows: 2, maxRows: 4}" type="textarea" />
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
@@ -167,10 +129,10 @@ import { parseTime } from '@/utils'
 import Pagination from '@/components/Pagination' // secondary package based on el-pagination
 
 const calendarTypeOptions = [
-  { key: '11', display_name: '网站公告' },
-  { key: '12', display_name: '新闻快讯' },
-  { key: '13', display_name: '专题访谈' },
-  { key: '14', display_name: '原创资讯' }
+  { key: '15', display_name: '经典剧目' },
+  { key: '16', display_name: '纪录片' },
+  { key: '17', display_name: '教学' },
+  { key: '18', display_name: '活动' }
 ]
 
 // arr to obj, such as { CN : "China", US : "USA" }
@@ -245,7 +207,7 @@ export default {
       /* 临时对象储存 */
       temp: {
         id: 0,
-        remark: ''
+        statusReason: ''
         // importance: 1,
         // timestamp: new Date(),
         // title: '',
@@ -262,7 +224,7 @@ export default {
       // dialogPvVisible: false,
       // pvData: [],
       rules: {
-        remark: [{ validator: validateRequire, trigger: 'blur' }]
+        statusReason: [{ validator: validateRequire, trigger: 'blur' }]
         // type: [{ required: true, message: 'type is required', trigger: 'change' }],
         // timestamp: [{ type: 'date', required: true, message: 'timestamp is required', trigger: 'change' }],
         // title: [{ required: true, message: 'title is required', trigger: 'blur' }]
@@ -291,11 +253,12 @@ export default {
       this.getList()
     },
     handleModifyStatus(row, status) {
+      this.passArticle(row.id)
       this.$message({
         message: '操作Success',
         type: 'success'
       })
-      row.examStatus = status
+      row.status = status
     },
     sortChange(data) {
       const { prop, order } = data
@@ -311,51 +274,27 @@ export default {
       }
       this.handleFilter()
     },
-    /* resetTemp() {
-      this.temp = {
-        id: undefined,
-        importance: 1,
-        remark: '',
-        timestamp: new Date(),
-        title: '',
-        status: 'published',
-        type: ''
-      }
-    }, */
-    /* handleCreate() {
-      this.resetTemp()
-      this.dialogStatus = 'create'
-      // this.dialogFormVisible = true
-      this.$nextTick(() => {
-        this.$refs['dataForm'].clearValidate()
-      })
-    }, */
-    /* createData() {
-      this.$refs['dataForm'].validate((valid) => {
-        if (valid) {
-          this.temp.id = parseInt(Math.random() * 100) + 1024 // mock a id
-          this.temp.author = 'vue-element-admin'
-          createArticle(this.temp).then(() => {
-            this.list.unshift(this.temp)
-            // this.dialogFormVisible = false
-            this.$notify({
-              title: 'Success',
-              message: 'Created Successfully',
-              type: 'success',
-              duration: 2000
-            })
-          })
-        }
-      })
-    }, */
     handleBack(row) {
+      row.status = 4
       this.dialogBackVisible = true
       this.temp.id = row.id
-      if (row.remark && row.remark.length > 0) this.temp.remark = row.remark
-      else this.temp.remark = ''
+      if (row.statusReason && row.statusReason.length > 0) this.temp.statusReason = row.statusReason
+      else this.temp.statusReason = ''
       // this.$nextTick(() => {
       //   // this.$refs['backForm'].clearValidate()
       // })
+    },
+    passArticle(id) {
+      this.temp.id = id
+      auditVideo(this.temp).then(() => {
+        this.dialogBackVisible = false
+        this.$notify({
+          title: 'Success',
+          message: 'Created Successfully',
+          type: 'success',
+          duration: 2000
+        })
+      })
     },
     backArticle() {
       this.$refs['backForm'].validate((valid) => {
@@ -372,49 +311,6 @@ export default {
         }
       })
     },
-    /* handleUpdate(row) {
-      this.temp = Object.assign({}, row) // copy obj
-      this.temp.timestamp = new Date(this.temp.timestamp)
-      this.dialogStatus = 'update'
-      this.dialogFormVisible = true
-      this.$nextTick(() => {
-        this.$refs['dataForm'].clearValidate()
-      })
-    },
-    updateData() {
-      this.$refs['dataForm'].validate((valid) => {
-        if (valid) {
-          const tempData = Object.assign({}, this.temp)
-          tempData.timestamp = +new Date(tempData.timestamp) // change Thu Nov 30 2017 16:41:05 GMT+0800 (CST) to 1512031311464
-          updateArticle(tempData).then(() => {
-            for (const v of this.list) {
-              if (v.id === this.temp.id) {
-                const index = this.list.indexOf(v)
-                this.list.splice(index, 1, this.temp)
-                break
-              }
-            }
-            this.dialogFormVisible = false
-            this.$notify({
-              title: 'Success',
-              message: 'Update Successfully',
-              type: 'success',
-              duration: 2000
-            })
-          })
-        }
-      })
-    }, */
-    /* handleDelete(row) {
-      this.$notify({
-        title: 'Success',
-        message: 'Delete Successfully',
-        type: 'success',
-        duration: 2000
-      })
-      const index = this.list.indexOf(row)
-      this.list.splice(index, 1)
-    }, */
     handleDownload() {
       this.downloadLoading = true
       import('@/vendor/Export2Excel').then(excel => {

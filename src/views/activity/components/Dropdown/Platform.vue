@@ -29,10 +29,10 @@ export default {
         // { key: 'a-platform', name: 'a-platform' },
         // { key: 'b-platform', name: 'b-platform' },
         // { key: 'c-platform', name: 'c-platform' },
-        { key: 15, name: '经典剧目' },
-        { key: 16, name: '纪录片' },
-        { key: 17, name: '教学' },
-        { key: 18, name: '活动' }
+        { key: 11, name: '网站公告' },
+        { key: 12, name: '新闻快讯' },
+        { key: 13, name: '专题访谈' },
+        { key: 14, name: '原创资讯' }
       ]
     }
   },

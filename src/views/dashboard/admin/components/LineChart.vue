@@ -61,7 +61,7 @@ export default {
       this.chart = echarts.init(this.$el, 'macarons')
       this.setOptions(this.chartData)
     },
-    setOptions({ expectedData, actualData } = {}) {
+    setOptions({ allData, articleData, videoData } = {}) {
       this.chart.setOption({
         xAxis: {
           data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
@@ -90,10 +90,29 @@ export default {
           }
         },
         legend: {
-          data: ['expected', 'actual']
+          data: ['全网站范围', '文章部分', '视频部分']
         },
         series: [{
-          name: 'expected', itemStyle: {
+          name: '全网站范围', itemStyle: {
+            normal: {
+              color: '#66CCFF',
+              lineStyle: {
+                color: '#66CCFF',
+                width: 2
+              },
+              areaStyle: {
+                color: '#f3f8ff'
+              }
+            }
+          },
+          smooth: true,
+          type: 'line',
+          data: allData,
+          animationDuration: 2800,
+          animationEasing: 'cubicInOut'
+        },
+        {
+          name: '文章部分', itemStyle: {
             normal: {
               color: '#FF005A',
               lineStyle: {
@@ -104,12 +123,12 @@ export default {
           },
           smooth: true,
           type: 'line',
-          data: expectedData,
+          data: articleData,
           animationDuration: 2800,
           animationEasing: 'cubicInOut'
         },
         {
-          name: 'actual',
+          name: '视频部分',
           smooth: true,
           type: 'line',
           itemStyle: {
@@ -124,7 +143,7 @@ export default {
               }
             }
           },
-          data: actualData,
+          data: videoData,
           animationDuration: 2800,
           animationEasing: 'quadraticOut'
         }]

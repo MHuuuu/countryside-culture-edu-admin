@@ -62,7 +62,7 @@ export default {
         },
         xAxis: [{
           type: 'category',
-          data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+          data: ['一季度', '二季度', '三季度', '四季度'],
           axisTick: {
             alignWithLabel: true
           }
@@ -74,25 +74,32 @@ export default {
           }
         }],
         series: [{
-          name: 'pageA',
+          name: '博物馆',
           type: 'bar',
           stack: 'vistors',
           barWidth: '60%',
-          data: [79, 52, 200, 334, 390, 330, 220],
+          data: [79, 52, 50, 334],
           animationDuration
         }, {
-          name: 'pageB',
+          name: '视频',
           type: 'bar',
           stack: 'vistors',
           barWidth: '60%',
-          data: [80, 52, 200, 334, 390, 330, 220],
+          data: [80, 52, 200, 334],
           animationDuration
         }, {
-          name: 'pageC',
+          name: '文章',
           type: 'bar',
           stack: 'vistors',
           barWidth: '60%',
-          data: [30, 52, 200, 334, 390, 330, 220],
+          data: [30, 52, 200, 500],
+          animationDuration
+        }, {
+          name: '活动',
+          type: 'bar',
+          stack: 'vistors',
+          barWidth: '60%',
+          data: [30, 11, 30, 20],
           animationDuration
         }]
       })
