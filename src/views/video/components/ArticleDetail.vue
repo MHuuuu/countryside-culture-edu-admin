@@ -281,7 +281,7 @@ export default {
           this.postForm = response.data
           this.playerOptions.sources = [{
             // src: response.data.url, // 路径
-            src: 'http://120.79.217.195:8080/video/追鱼书馆教学花旦示范3_高清.mp4',
+            src: 'http://120.79.217.195:8080/' + this.postForm.url,
             type: 'video/mp4' // 类型
           }]
 

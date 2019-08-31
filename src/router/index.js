@@ -330,7 +330,7 @@ export const asyncRoutes = [
     component: Layout,
     children: [
       {
-        path: 'https://panjiachen.github.io/vue-element-admin-site/#/',
+        path: 'http://120.79.217.195:8090/',
         meta: { title: '返回前台主页', icon: 'link' }
       }
     ]

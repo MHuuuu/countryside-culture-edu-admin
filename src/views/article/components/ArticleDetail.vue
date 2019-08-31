@@ -304,27 +304,42 @@ export default {
   },
   methods: {
     fetchData(id) {
-      fetchArticle(id)
-        .then(response => {
-          this.postForm = response.data
+      fetchArticle(id).then(response => {
+        this.postForm = response.data
 
-          // 提示框
-          if (this.postForm.examStatus === 3 && !this.isCheak) {
-            this.dialogVisible = true
-          }
-          // just for test
-          // this.postForm.title += `Article Id:${this.postForm.id}`
+        // 提示框
+        if (this.postForm.examStatus === 3 && !this.isCheak) {
+          this.dialogVisible = true
+        }
+        // just for test
+        // this.postForm.title += `Article Id:${this.postForm.id}`
 
-          // set tagsview title
-          // 暂时不用
-          // this.setTagsViewTitle()
+        // set tagsview title
+        // 暂时不用
+        // this.setTagsViewTitle()
 
-          // set page title
-          this.setPageTitle()
-        })
-        .catch(err => {
-          console.log(err)
-        })
+        // set page title
+        this.setPageTitle()
+
+        this.$nextTick(() => {})
+
+        // // 添加图片前缀
+        // this.$nextTick(() => {
+        //   var aImgs = document.getElementsByTagName('img')
+        //   for (var i = 1; i < aImgs.length; i++) {
+        //   // console.log('z:aImgs=' + i)
+        //     console.log('z:aImgs[i].src=' + aImgs[i].getAttribute('src'))
+        //     if (aImgs[i].src.indexOf('http://120.79.217.195:8090') === -1 &&
+        //       aImgs[i].src.indexOf('data:image') === -1) {
+        //       console.log('1:' + aImgs[i].src)
+        //       aImgs[i].src = 'http://120.79.217.195:8090/' + aImgs[i].getAttribute('src')
+        //       console.log('2:' + aImgs[i].src)
+        //     }
+        //   }
+        // })
+      }).catch(err => {
+        console.log(err)
+      })
     },
     setTagsViewTitle() {
       const title = 'Edit Article'

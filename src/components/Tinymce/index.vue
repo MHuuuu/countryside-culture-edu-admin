@@ -72,7 +72,8 @@ export default {
         'zh': 'zh_CN',
         'es': 'es_MX',
         'ja': 'ja'
-      }
+      },
+      urlPatch: 'http://120.79.217.195:8090/'
     }
   },
   computed: {
@@ -224,7 +225,7 @@ export default {
     imageSuccessCBK(arr) {
       const _this = this
       arr.forEach(v => {
-        window.tinymce.get(_this.tinymceId).insertContent(`<img class="wscnph" src="${v.url}" >`)
+        window.tinymce.get(_this.tinymceId).insertContent(`<img class="wscnph" src="${this.urlPatch + v.url}" >`)
       })
     }
   }

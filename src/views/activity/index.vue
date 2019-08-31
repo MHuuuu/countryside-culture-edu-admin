@@ -3,7 +3,7 @@
     <el-row class="row-bg" :gutter="10">
       <el-col v-for="item in list" :key="item.id" :span="6" class="col-bg">
         <el-card :body-style="{ padding: '0px' }">
-          <img src="https://shadow.elemecdn.com/app/element/hamburger.9cf7b091-55e9-11e9-a976-7f4d0b07eef6.png" class="image">
+          <img :src="item.picture" class="image">
           <div style="padding: 14px;">
             <router-link :to="'/activity/edit/'+item.id" class="link-type">
               <span class="activity-title">{{ item.title }}</span>
@@ -112,6 +112,7 @@ export default {
   }
 
   .image {
+    height: 350px;
     width: 100%;
     display: block;
   }
