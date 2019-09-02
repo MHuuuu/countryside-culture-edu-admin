@@ -30,7 +30,7 @@
                     label="(*)举办机构:"
                     label-width="120px"
                     class="postInfo-container-item"
-                    prop="author"
+                    prop="eorganizer"
                   >
                     <el-input
                       v-model="postForm.eorganizer"
@@ -138,8 +138,8 @@ const defaultForm = {
   source: '', // 文章外链
   // image_uri: '', // 文章图片
   picture: '', // 文章图片
-  startTime: undefined,
-  endTime: undefined,
+  starttime: undefined,
+  endtime: undefined,
   id: undefined,
   kind: 0,
   // comment_disabled: false,
@@ -201,7 +201,7 @@ export default {
         content: [{ validator: validateRequire }],
         end_time: [{ validator: validateRequire }],
         start_time: [{ validator: validateRequire }],
-        author: [{ validator: validateRequire }],
+        eorganizer: [{ validator: validateRequire }],
         source: [{ validator: validateRequire }]
         // source: [{ validator: validateSourceUri, trigger: 'blur' }]
       },
@@ -220,7 +220,7 @@ export default {
         return +new Date(this.postForm.starttime)
       },
       set(val) {
-        this.postForm.startTime = new Date(val)
+        this.postForm.starttime = new Date(val)
       }
     },
     displayEndTime: {
@@ -232,7 +232,7 @@ export default {
         return +new Date(this.postForm.endtime)
       },
       set(val) {
-        this.postForm.endTime = new Date(val)
+        this.postForm.endtime = new Date(val)
         // console.log('z:this.postForm.publishTime=' + this.postForm.publishTime)
       }
     }

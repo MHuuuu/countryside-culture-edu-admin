@@ -91,7 +91,7 @@
               查看
             </el-button>
           </router-link>
-          <el-button v-if="row.examStatus==1" size="mini" type="success" @click="handleModifyStatus(row,'published')">
+          <el-button v-if="row.examStatus==1" size="mini" type="success" @click="handleModifyStatus(row,2)">
             通过
           </el-button>
           <el-button v-if="row.examStatus==1" size="mini" type="danger" @click="handleBack(row)">
@@ -253,6 +253,8 @@ export default {
       this.getList()
     },
     handleModifyStatus(row, status) {
+      this.temp.id = row.id
+      this.temp.remark = ''
       this.passArticle()
       this.$message({
         message: '操作Success',
@@ -274,43 +276,6 @@ export default {
       }
       this.handleFilter()
     },
-    /* resetTemp() {
-      this.temp = {
-        id: undefined,
-        importance: 1,
-        remark: '',
-        timestamp: new Date(),
-        title: '',
-        status: 'published',
-        type: ''
-      }
-    }, */
-    /* handleCreate() {
-      this.resetTemp()
-      this.dialogStatus = 'create'
-      // this.dialogFormVisible = true
-      this.$nextTick(() => {
-        this.$refs['dataForm'].clearValidate()
-      })
-    }, */
-    /* createData() {
-      this.$refs['dataForm'].validate((valid) => {
-        if (valid) {
-          this.temp.id = parseInt(Math.random() * 100) + 1024 // mock a id
-          this.temp.author = 'vue-element-admin'
-          createArticle(this.temp).then(() => {
-            this.list.unshift(this.temp)
-            // this.dialogFormVisible = false
-            this.$notify({
-              title: 'Success',
-              message: 'Created Successfully',
-              type: 'success',
-              duration: 2000
-            })
-          })
-        }
-      })
-    }, */
     handleBack(row) {
       this.dialogBackVisible = true
       this.temp.id = row.id
