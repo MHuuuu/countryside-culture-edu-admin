@@ -1,5 +1,15 @@
 // import parseTime, formatTime and set to filter
-export { parseTime, formatTime } from '@/utils'
+import { parseTime } from '@/utils'
+
+/**
+ * 转换字符串格式的时间到令一格式的时间
+ * @param {string} time
+ */
+export function simpleTiem(time) {
+  var date = new Date(time)
+  console.log('z:data' + date)
+  return parseTime(date, '{y}/{m}/{d}')
+}
 
 /**
  * Show plural label if time is plural number

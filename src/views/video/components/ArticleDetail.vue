@@ -130,6 +130,7 @@ import { fetchVideo, submitVideo } from '@/api/video'
 import { PlatformDropdown } from './Dropdown'
 import { uploadVideo } from '@/api/public'
 
+import { parseTime } from '@/utils'
 import { videoPlayer } from 'vue-video-player'
 import 'video.js/dist/video-js.css'
 
@@ -204,7 +205,7 @@ export default {
       },
 
       options: {
-        target: '/public/chunk',
+        target: '/prod-api/public/chunk',
         testChunks: true,
         simultaneousUploads: 1,
         chunkSize: 10 * 1024 * 1024
@@ -317,6 +318,8 @@ export default {
         })
         return
       }
+
+      this.postForm.starttime = parseTime(this.postForm.publishTime, '{y}-{m}-{d} {h}:{i}:{s}')
 
       this.$refs.postForm.validate(valid => {
         if (valid) {

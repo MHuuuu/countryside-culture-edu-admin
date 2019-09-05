@@ -10,8 +10,7 @@
             </router-link>
             <span>{{ '('+item.status+')' }}</span>
             <div class="bottom clearfix">
-              <time class="time">{{ item.endtime +' 开始至 '+item.endtime +' 结束' }}</time>
-
+              <time class="time">{{ item.starttime | simpleTiem }} 开始至<br> {{ item.endtime | simpleTiem }} 结束 </time>
               <!-- <el-button type="text" class="button">操作按钮</el-button> -->
             </div>
           </div>
@@ -69,7 +68,6 @@ export default {
 
     }
   },
-
   created() {
     this.getActivityList()
   },

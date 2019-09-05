@@ -1,7 +1,7 @@
 <template>
   <div class="createPost-container">
     <el-form ref="postForm" :model="postForm" :rules="rules" class="form-container">
-      <sticky :z-index="10" :class-name="'sub-navbar '+postForm.status">
+      <sticky :z-index="10" :class-name="'sub-navbar '+postForm.formStatus">
         <!-- <CommentDropdown v-model="postForm.comment_disabled" /> -->
         <!-- <PlatformDropdown v-model="postForm.kind" /> -->
         <!-- <SourceUrlDropdown v-model="postForm.source" /> -->
@@ -125,13 +125,15 @@ import MDinput from '@/components/MDinput'
 import Sticky from '@/components/Sticky' // 粘性header组件
 // import { validURL } from '@/utils/validate'
 import { fetchActivity, createActivity } from '@/api/activity'
+import { parseTime } from '@/utils'
 // import { searchUser } from '@/api/remote-search'
 // import Warning from './Warning'
 // import { SourceUrlDropdown } from './Dropdown'
 // import { mapGetters } from 'vuex'
 
 const defaultForm = {
-  status: 'draft',
+  formStatus: '',
+  status: '',
   title: '', // 文章题目
   content: '', // 文章内容
   remark: '', // 文章摘要
@@ -142,6 +144,7 @@ const defaultForm = {
   endtime: undefined,
   id: undefined,
   kind: 0,
+  hits: 0,
   // comment_disabled: false,
   // importance: 0,
   examStatus: 0,
@@ -176,21 +179,6 @@ export default {
         callback()
       }
     }
-    // const validateSourceUri = (rule, value, callback) => {
-    //   if (value) {
-    //     if (validURL(value)) {
-    //       callback()
-    //     } else {
-    //       this.$message({
-    //         message: '外链url填写不正确',
-    //         type: 'error'
-    //       })
-    //       callback(new Error('外链url填写不正确'))
-    //     }
-    //   } else {
-    //     callback()
-    //   }
-    // }
     return {
       postForm: Object.assign({}, defaultForm),
       loading: false,
@@ -233,7 +221,7 @@ export default {
       },
       set(val) {
         this.postForm.endtime = new Date(val)
-        // console.log('z:this.postForm.publishTime=' + this.postForm.publishTime)
+        // console.log('z:this.postForm.publishTime=' + parseTime(this.postForm.endtime, '{y}-{m}-{d} {h}:{i}'))
       }
     }
   },
@@ -241,6 +229,8 @@ export default {
     if (this.isEdit) {
       const id = this.$route.params && this.$route.params.id
       this.fetchData(id)
+      this.cheakTiem()
+      console.log(this.postForm.status)
     } else {
       this.postForm = Object.assign({}, defaultForm)
     }
@@ -251,6 +241,15 @@ export default {
     this.tempRoute = Object.assign({}, this.$route)
   },
   methods: {
+    cheakTiem() {
+      if (Date.now() - Date(this.postForm.starttime) < 0) {
+        this.postForm.status = '未开始'
+      } else if (Date.now() - Date(this.postForm.endtime) < 0) {
+        this.postForm.status = '正在进行'
+      } else {
+        this.postForm.status = '已结束'
+      }
+    },
     fetchData(id) {
       fetchActivity(id)
         .then(response => {
@@ -286,6 +285,12 @@ export default {
         return
       }
 
+      this.cheakTiem()
+      // console.log('z:this.postForm.status=' + this.postForm.status)
+
+      this.postForm.endtime = parseTime(this.postForm.endtime, '{y}-{m}-{d} {h}:{i}:{s}')
+      this.postForm.starttime = parseTime(this.postForm.starttime, '{y}-{m}-{d} {h}:{i}:{s}')
+
       this.$refs.postForm.validate(valid => {
         if (valid) {
           this.loading = true
@@ -295,17 +300,17 @@ export default {
               // console.log(response.data)
               this.$notify({
                 title: '成功',
-                message: '发布文章成功,等待审核中',
+                message: '创建活动成功,等待审核中',
                 type: 'success',
                 duration: 2000
               })
-              this.postForm.status = 'published'
+              this.postForm.formStatus = 'published'
             })
             .catch(err => {
               console.log(err)
               this.$notify({
                 title: '失败',
-                message: '发布文章失败',
+                message: '创建活动失败',
                 type: 'success',
                 duration: 2000
               })
